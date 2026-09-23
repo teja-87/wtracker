@@ -26,7 +26,7 @@ async def on_ready():
     channel = client.get_channel(CHANNEL_ID)
 
     if channel:
-        await channel.send("🟢 Wallet tracker is online!")
+        await channel.send("🟢 Wallet tracker is online! now form render")
 
 
 # -------------------------
@@ -76,4 +76,4 @@ if __name__ == "__main__":
 
     loop.run_until_complete(server.serve())
 
-    
+    # main bot
