@@ -1,31 +1,28 @@
 import os
+import asyncio
 
 import discord
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-import uvicorn
 
 load_dotenv()
 
 DISCORD_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 CHANNEL_ID = int(os.getenv("DISCORD_CHANNEL_ID"))
 
-# -------------------------
-# Discord
-# -------------------------
-
 intents = discord.Intents.default()
 
-client = discord.Client(intents=intents)
+discord_client = discord.Client(intents=intents)
+
+app = FastAPI()
 
 
-
-@client.event
+@discord_client.event
 async def on_ready():
-    print(f"Discord bot online: {client.user}")
+    print(f"Discord bot online: {discord_client.user}")
     print(f"Discord channel ID: {CHANNEL_ID}")
 
-    channel = client.get_channel(CHANNEL_ID)
+    channel = discord_client.get_channel(CHANNEL_ID)
 
     if channel is None:
         print("❌ Could not find Discord channel!")
@@ -37,12 +34,6 @@ async def on_ready():
 
     print("✅ Startup message sent to Discord")
 
-# -------------------------
-# FastAPI
-# -------------------------
-
-app = FastAPI()
-
 
 @app.get("/")
 async def home():
@@ -53,35 +44,13 @@ async def home():
 async def webhook(request: Request):
     data = await request.json()
 
-    print("\n===== WEBHOOK RECEIVED =====")
+    print("===== WEBHOOK RECEIVED =====")
     print(data)
-    print("============================\n")
+    print("============================")
 
     return {"status": "received"}
 
 
-# -------------------------
-# Start everything
-# -------------------------
-
-if __name__ == "__main__":
-    import asyncio
-
-    async def start():
-        await client.start(DISCORD_TOKEN)
-
-    loop = asyncio.get_event_loop()
-
-    loop.create_task(start())
-
-    config = uvicorn.Config(
-        app,
-        host="0.0.0.0",
-        port=8000,
-    )
-
-    server = uvicorn.Server(config)
-
-    loop.run_until_complete(server.serve())
-
-    # main bot
+@app.on_event("startup")
+async def startup():
+    asyncio.create_task(discord_client.start(DISCORD_TOKEN))
