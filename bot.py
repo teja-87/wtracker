@@ -17,6 +17,10 @@ discord_client = discord.Client(intents=intents)
 app = FastAPI()
 
 
+# =========================
+# DISCORD BOT
+# =========================
+
 @discord_client.event
 async def on_ready():
     print(f"Discord bot online: {discord_client.user}")
@@ -35,22 +39,43 @@ async def on_ready():
     print("✅ Startup message sent to Discord")
 
 
+# =========================
+# HEALTH CHECK
+# =========================
+
 @app.get("/")
 async def home():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "service": "Solana Wallet Tracker"
+    }
 
+
+# =========================
+# HELIUS WEBHOOK
+# =========================
 
 @app.post("/webhook")
 async def webhook(request: Request):
+
     data = await request.json()
 
-    print("===== WEBHOOK RECEIVED =====")
+    print("\n===== HELIUS WEBHOOK RECEIVED =====")
     print(data)
-    print("============================")
+    print("===================================\n")
 
-    return {"status": "received"}
+    return {
+        "status": "received"
+    }
 
+
+# =========================
+# START DISCORD BOT
+# =========================
 
 @app.on_event("startup")
 async def startup():
-    asyncio.create_task(discord_client.start(DISCORD_TOKEN))
+
+    asyncio.create_task(
+        discord_client.start(DISCORD_TOKEN)
+    )
