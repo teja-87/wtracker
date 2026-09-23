@@ -19,15 +19,23 @@ intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
 
+
 @client.event
 async def on_ready():
     print(f"Discord bot online: {client.user}")
+    print(f"Discord channel ID: {CHANNEL_ID}")
 
     channel = client.get_channel(CHANNEL_ID)
 
-    if channel:
-        await channel.send("🟢 Wallet tracker is online! now form render")
+    if channel is None:
+        print("❌ Could not find Discord channel!")
+        return
 
+    print(f"Found channel: {channel.name}")
+
+    await channel.send("🟢 Wallet tracker is online!")
+
+    print("✅ Startup message sent to Discord")
 
 # -------------------------
 # FastAPI
